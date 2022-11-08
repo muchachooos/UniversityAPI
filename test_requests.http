@@ -1,0 +1,4 @@
+### Запрос на создаие студента
+POST http://localhost:8080/create_student?first_name=Yura&last_name=Yurkov
+### Запрос на удаление студента
+POST http://localhost:8080/delete_student?first_name=Grisha&last_name=Yuriev
