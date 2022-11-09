@@ -1,4 +1,8 @@
 ### Запрос на создаие студента
-POST http://localhost:8080/create_student?first_name=Yura&last_name=Yurkov
+POST http://localhost:8080/create_student?first_name=Yura&last_name=Yurkov&date_of_birth=27.03.1998
+
 ### Запрос на удаление студента
-POST http://localhost:8080/delete_student?first_name=Grisha&last_name=Yuriev
+POST http://localhost:8080/delete_student?id=
+
+### Запрос на получение ID студента
+POST http://localhost:8080/get_id_student?first_name=Grisha&last_name=Yuriev&date_of_birth=07.05.1998
