@@ -1,10 +1,11 @@
 CREATE TABLE student
 (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(20) NOT NULL,
-    last_name  VARCHAR(30) NOT NULL,
-    class_id   VARCHAR(10),
-    room       VARCHAR(10),
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    first_name    VARCHAR(20) NOT NULL,
+    last_name     VARCHAR(30) NOT NULL,
+    class_id      VARCHAR(10),
+    room          VARCHAR(10),
+    date_of_birth VARCHAR(10),
     FOREIGN KEY (class_id) REFERENCES classes (id),
     FOREIGN KEY (room) REFERENCES rooms (room_number)
 );
@@ -28,3 +29,8 @@ CREATE TABLE record_book
     FOREIGN KEY (id_student) REFERENCES student (id)
         ON DELETE CASCADE
 );
+
+# DROP TABLE record_book;
+# DROP TABLE student;
+# DROP TABLE rooms;
+# DROP TABLE classes
