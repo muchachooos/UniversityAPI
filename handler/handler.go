@@ -57,40 +57,7 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func (s *Server) DelStudentHandler(context *gin.Context) {
-
-	var err error
-
-	id, ok := context.GetQuery("id")
-	if id == "" || !ok {
-		context.Writer.WriteString("No ID")
-		return
-	}
-
-	res, err := s.DataBase.Exec("DELETE FROM student WHERE id = ?", id)
-	if err != nil {
-		context.Writer.WriteString("Something went wrong. Try again")
-		context.Status(500)
-		return
-	}
-
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
-		return
-	}
-
-	if countOfDeletedRows == 0 {
-		context.Status(500)
-		context.Writer.WriteString("Wrong ID. Try again")
-		return
-	}
-
-	context.Writer.WriteString("Welcome to the club Body")
-}
-
-func (s *Server) GetIdStudents(context *gin.Context) {
+func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 
 	var err error
 
@@ -128,19 +95,84 @@ func (s *Server) GetIdStudents(context *gin.Context) {
 		return
 	}
 
-	for i := range resultTable {
-		idStudents := resultTable[i]
-
-		jsonInByte, err := json.Marshal(idStudents)
-		if err != nil {
-			context.Writer.WriteString("json creating error")
-			return
-		}
-		context.Writer.Write(jsonInByte)
+	jsonInByte, err := json.Marshal(resultTable)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
 	}
+
+	context.Writer.Write(jsonInByte)
 }
 
-func (s *Server) GetStudentsInfoByName(context *gin.Context) {
+func (s *Server) DelStudentHandler(context *gin.Context) {
+
+	var err error
+
+	id, ok := context.GetQuery("id")
+	if id == "" || !ok {
+		context.Writer.WriteString("No ID")
+		return
+	}
+
+	res, err := s.DataBase.Exec("DELETE FROM student WHERE id = ?", id)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	if countOfDeletedRows == 0 {
+		context.Status(500)
+		context.Writer.WriteString("Wrong ID. Try again")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
+
+	var err error
+
+	id, ok := context.GetQuery("id")
+	if id == "" || !ok {
+		context.Writer.WriteString("No ID")
+		return
+	}
+
+	var resultTable []Student
+
+	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		fmt.Println("!!!!!!!!!!!! - ", err)
+		return
+	}
+
+	if len(resultTable) == 0 {
+		context.Status(404)
+		context.Writer.WriteString("No students with this ID")
+		return
+	}
+
+	jsonInByte, err := json.Marshal(resultTable)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
+	}
+
+	context.Writer.Write(jsonInByte)
+}
+
+func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 
 	var err error
 
@@ -172,47 +204,7 @@ func (s *Server) GetStudentsInfoByName(context *gin.Context) {
 		return
 	}
 
-	for i := range resultTable {
-		studentInfo := resultTable[i]
-
-		jsonInByte, err := json.Marshal(studentInfo)
-		if err != nil {
-			context.Writer.WriteString("json creating error")
-			return
-		}
-		context.Writer.Write(jsonInByte)
-	}
-}
-
-func (s *Server) GetStudentsInfoByID(context *gin.Context) {
-
-	var err error
-
-	id, ok := context.GetQuery("id")
-	if id == "" || !ok {
-		context.Writer.WriteString("No ID")
-		return
-	}
-
-	var resultTable []Student
-
-	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
-		fmt.Println("!!!!!!!!!!!! - ", err)
-		return
-	}
-
-	if len(resultTable) == 0 {
-		context.Status(404)
-		context.Writer.WriteString("No students with this ID")
-		return
-	}
-
-	studentInfo := resultTable[0]
-
-	jsonInByte, err := json.Marshal(studentInfo)
+	jsonInByte, err := json.Marshal(resultTable)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
