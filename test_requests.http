@@ -1,14 +1,24 @@
 ### Запрос на создаие студента
-POST http://localhost:8080/create_student?first_name=Yura&last_name=Yurkov&date_of_birth=27.03.1998
+POST http://localhost:8080/create_student?first_name=Oleg&last_name=Sergeyev&date_of_birth=31.01.1999
 
 ### Запрос на получение ID студента
 GET http://localhost:8080/get_id_student?first_name=Yura&last_name=Yurkov&date_of_birth=27.03.1998
 
 ### Запрос на удаление студента по ID
-DELETE http://localhost:8080/delete_student?id=13
+DELETE http://localhost:8080/delete_student?id=
 
 ### Запрос на поиск студента по ID
-GET http://localhost:8080/get_students_info_by_id?id=4
+GET http://localhost:8080/get_students_info_by_id?id=2
 
 ### Запрос на поиск студента по имени
 GET http://localhost:8080/get_students_info_by_name?first_name=Grisha&last_name=Yuriev
+
+### Запрос на создание комнаты
+POST http://localhost:8080/create_room?room_number=11A&number_of_beds=4
+
+### Запрос на получение комнаты по номеру
+GET http://localhost:8080/
+
+### Запрос на удаление комнаты по номеру
+DELETE http://localhost:8080/delete_room?room_number=11A
+
