@@ -15,7 +15,7 @@ type Student struct {
 	ID          int     `db:"id" json:"id"`
 	FirstName   string  `db:"first_name" json:"firstName"`
 	LastName    string  `db:"last_name" json:"lastName"`
-	ClassID     *string `db:"class_id" json:"classID"`
+	GroupID     *string `db:"group_id" json:"GroupID"`
 	Room        *string `db:"room" json:"room"`
 	DateOfBirth *string `db:"date_of_birth" json:"dateOfBirth"`
 }
@@ -211,4 +211,75 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 	}
 
 	context.Writer.Write(jsonInByte)
+}
+
+func (s *Server) CreateRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	beds, ok := context.GetQuery("number_of_beds")
+	if beds == "" || !ok {
+		context.Writer.WriteString("No number of beds")
+		return
+	}
+
+	_, err = s.DataBase.Exec("INSERT INTO rooms(room_number, number_of_beds) VALUES (?,?)", roomNum, beds)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something's not right. Try again")
+		fmt.Println("!!!!!!!", err)
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) GetRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_fo_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("Missing room number")
+	}
+
+}
+
+func (s *Server) DelRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	res, err := s.DataBase.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	if countOfDeletedRows == 0 {
+		context.Status(500)
+		context.Writer.WriteString("Wrong ID. Try again")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
 }
