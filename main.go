@@ -20,11 +20,16 @@ func main() {
 		dataBase,
 	}
 
+	//Student
 	router.POST("/create_student", server.CreateStudentHandler)
 	router.GET("/get_id_student", server.GetIdStudentsHandler)
 	router.DELETE("/delete_student", server.DelStudentHandler)
 	router.GET("/get_students_info_by_id", server.GetStudentsByIdHandler)
 	router.GET("/get_students_info_by_name", server.GetStudentsByNameHandler)
+
+	//Room
+	router.POST("/create_room", server.CreateRoomHandler)
+	router.DELETE("/delete_room", server.DelRoomHandler)
 
 	router.Run("localhost:8080")
 }
