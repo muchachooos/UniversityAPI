@@ -209,6 +209,7 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		context.Writer.WriteString("json creating error")
 		return
 	}
+	//fmt.Println(string(jsonInByte))
 
 	context.Writer.Write(jsonInByte)
 }
@@ -244,11 +245,35 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 
 	var err error
 
-	roomNum, ok := context.GetQuery("room_fo_number")
+	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
 		context.Writer.WriteString("Missing room number")
+		return
 	}
 
+	var resultTable []Student
+
+	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE room = ?", roomNum)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		fmt.Println("!!!!!!!!!!!! - ", err)
+		return
+	}
+
+	if len(resultTable) == 0 {
+		context.Status(404)
+		context.Writer.WriteString("No rooms with this data")
+		return
+	}
+
+	jsonInByte, err := json.Marshal(resultTable)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
+	}
+
+	context.Writer.Write(jsonInByte)
 }
 
 func (s *Server) DelRoomHandler(context *gin.Context) {
@@ -278,6 +303,46 @@ func (s *Server) DelRoomHandler(context *gin.Context) {
 	if countOfDeletedRows == 0 {
 		context.Status(500)
 		context.Writer.WriteString("Wrong ID. Try again")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) AddToRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	studId, ok := context.GetQuery("student_id")
+	if studId == "" || !ok {
+		context.Writer.WriteString("No student ID")
+		return
+	}
+
+	res, err := s.DataBase.Exec("UPDATE student SET room = ? WHERE id = ?", roomNum, studId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something's not right. Try again")
+		fmt.Println("!!!!!!!", err)
+		return
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Writer.WriteString("Something went wrong")
+		context.Status(500)
+		return
+	}
+
+	if countOfDeletedRows == 0 {
+		context.Writer.WriteString("Wrong login or password. Try again")
+		context.Status(500)
 		return
 	}
 
