@@ -21,10 +21,10 @@ func main() {
 	}
 
 	router.POST("/create_student", server.CreateStudentHandler)
+	router.GET("/get_id_student", server.GetIdStudentsHandler)
 	router.DELETE("/delete_student", server.DelStudentHandler)
-	router.GET("/get_id_student", server.GetIdStudents)
-	router.GET("/get_students_info_by_name", server.GetStudentsInfoByName)
-	router.GET("/get_students_info_by_id", server.GetStudentsInfoByID)
+	router.GET("/get_students_info_by_id", server.GetStudentsByIdHandler)
+	router.GET("/get_students_info_by_name", server.GetStudentsByNameHandler)
 
 	router.Run("localhost:8080")
 }
