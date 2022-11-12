@@ -20,6 +20,11 @@ type Student struct {
 	DateOfBirth *string `db:"date_of_birth" json:"dateOfBirth"`
 }
 
+type Room struct {
+	RoomNumber string `db:"room_number" json:"room_umber"`
+	NumOfDBeds int    `db:"number_of_beds" json:"number_of_beds"`
+}
+
 type ID struct {
 	ID int `db:"id" json:"id"`
 }
@@ -241,7 +246,7 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func (s *Server) GetRoomHandler(context *gin.Context) {
+func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 
 	var err error
 
@@ -263,7 +268,7 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 
 	if len(resultTable) == 0 {
 		context.Status(404)
-		context.Writer.WriteString("No rooms with this data")
+		context.Writer.WriteString("No data with this rooms")
 		return
 	}
 
@@ -274,6 +279,42 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 	}
 
 	context.Writer.Write(jsonInByte)
+}
+
+func (s *Server) GetRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("Missing room number")
+		return
+	}
+
+	var resultTable []Room
+
+	err = s.DataBase.Select(&resultTable, "SELECT * FROM rooms WHERE room_number = ?", roomNum)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		fmt.Println("!!!!!!!!!!!! - ", err)
+		return
+	}
+
+	if len(resultTable) == 0 {
+		context.Status(404)
+		context.Writer.WriteString("No data with this rooms")
+		return
+	}
+
+	jsonInByte, err := json.Marshal(resultTable)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
+	}
+
+	context.Writer.Write(jsonInByte)
+
 }
 
 func (s *Server) DelRoomHandler(context *gin.Context) {
@@ -341,7 +382,7 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 	}
 
 	if countOfDeletedRows == 0 {
-		context.Writer.WriteString("Wrong login or password. Try again")
+		context.Writer.WriteString("There is no student with this ID")
 		context.Status(500)
 		return
 	}
