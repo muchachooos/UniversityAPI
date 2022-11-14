@@ -61,6 +61,7 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 }
 
 func createStudentInDB(db *sqlx.DB, firstN, lastN, birth string) error {
+
 	_, err := db.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
 	if err != nil {
 		return err
@@ -210,8 +211,6 @@ func getStudentFromDB(db *sqlx.DB, id string) ([]Student, error) {
 
 func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 
-	var err error
-
 	firstN, ok := context.GetQuery("first_name")
 	if firstN == "" || !ok {
 		context.Writer.WriteString("No first name")
@@ -224,9 +223,7 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		return
 	}
 
-	var resultTable []Student
-
-	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE first_name = ? AND last_name = ?", firstN, lastN)
+	res, err := getStudentByNameFromDB(s.DataBase, firstN, lastN)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -234,29 +231,34 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		return
 	}
 
-	if len(resultTable) == 0 {
+	if len(res) == 0 {
 		context.Status(404)
 		context.Writer.WriteString("No students with this name")
 		return
 	}
 
-	jsonInByte, err := json.Marshal(resultTable)
+	jsonInByte, err := json.Marshal(res)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
 	}
 
-	// Comment
-	//fmt.Println("Слайс из студентов: ", resultTable)
-	//fmt.Println("Слайс из студентов преаратился в JSON: ", string(jsonInByte))
-	// Comment
-
 	context.Writer.Write(jsonInByte)
 }
 
-func (s *Server) CreateRoomHandler(context *gin.Context) {
+func getStudentByNameFromDB(db *sqlx.DB, firstN, lastN string) ([]Student, error) {
 
-	var err error
+	var resultTable []Student
+
+	err := db.Select(&resultTable, "SELECT * FROM student WHERE first_name = ? AND last_name = ?", firstN, lastN)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultTable, nil
+}
+
+func (s *Server) CreateRoomHandler(context *gin.Context) {
 
 	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
@@ -270,7 +272,7 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 		return
 	}
 
-	_, err = s.DataBase.Exec("INSERT INTO rooms(room_number, number_of_beds) VALUES (?,?)", roomNum, beds)
+	err := createRoomInDB(s.DataBase, roomNum, beds)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -281,9 +283,17 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func (s *Server) DelRoomHandler(context *gin.Context) {
+func createRoomInDB(db *sqlx.DB, roomNum, beds string) error {
 
-	var err error
+	_, err := db.Exec("INSERT INTO rooms(room_number, number_of_beds) VALUES (?,?)", roomNum, beds)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Server) DelRoomHandler(context *gin.Context) {
 
 	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
@@ -291,27 +301,38 @@ func (s *Server) DelRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := s.DataBase.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
+	isDeleted, err := deleteRoomFromDB(s.DataBase, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
 		return
 	}
 
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
-		return
-	}
-
-	if countOfDeletedRows == 0 {
-		context.Status(500)
-		context.Writer.WriteString("Wrong ID. Try again")
+	if isDeleted == false {
+		context.Writer.WriteString("Something went wrong")
 		return
 	}
 
 	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func deleteRoomFromDB(db *sqlx.DB, roomNum string) (bool, error) {
+
+	res, err := db.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
+	if err != nil {
+		return false, err
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if countOfDeletedRows == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *Server) AddToRoomHandler(context *gin.Context) {
