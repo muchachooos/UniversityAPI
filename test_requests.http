@@ -14,10 +14,10 @@ GET http://localhost:8080/get_students_info_by_id?id=7
 GET http://localhost:8080/get_students_info_by_name?first_name=Oleg&last_name=Sergeyev
 
 ### Запрос на создание комнаты
-POST http://localhost:8080/create_room?room_number=11A&number_of_beds=4
+POST http://localhost:8080/create_room?room_number=WC&number_of_beds=0
 
 ### Запрос на удаление комнаты по номеру
-DELETE http://localhost:8080/delete_room?room_number=11D
+DELETE http://localhost:8080/delete_room?room_number=WC
 
 ### Запрос на заселение студента в комнату
 POST http://localhost:8080/add_to_room?room_number=11A&student_id=1
