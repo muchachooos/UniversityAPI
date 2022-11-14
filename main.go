@@ -29,10 +29,14 @@ func main() {
 
 	//Room
 	router.POST("/create_room", server.CreateRoomHandler)
-	router.GET("/get_students_room", server.GetRoomStudentsHandler)
-	router.GET("/get_room", server.GetRoomHandler)
 	router.DELETE("/delete_room", server.DelRoomHandler)
 	router.POST("/add_to_room", server.AddToRoomHandler)
+	router.GET("/get_students_room", server.GetRoomStudentsHandler)
+	router.GET("/get_room", server.GetRoomHandler)
+
+	//Group
+	router.POST("/create_group", server.CreateGroupHandler)
+	router.DELETE("/delete_group", server.DeleteGroupHandler)
 
 	router.Run("localhost:8080")
 }
