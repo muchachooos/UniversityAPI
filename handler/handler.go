@@ -31,8 +31,6 @@ type ID struct {
 
 func (s *Server) CreateStudentHandler(context *gin.Context) {
 
-	var err error
-
 	firstN, ok := context.GetQuery("first_name")
 	if firstN == "" || !ok {
 		context.Writer.WriteString("No first name")
@@ -51,7 +49,7 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 		return
 	}
 
-	_, err = s.DataBase.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
+	err := createStudentInDB(s.DataBase, firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -62,9 +60,16 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func (s *Server) GetIdStudentsHandler(context *gin.Context) {
+func createStudentInDB(db *sqlx.DB, firstN, lastN, birth string) error {
+	_, err := db.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
+	if err != nil {
+		return err
+	}
 
-	var err error
+	return nil
+}
+
+func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 
 	firstN, ok := context.GetQuery("first_name")
 	if firstN == "" || !ok {
@@ -84,9 +89,7 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	var resultTable []ID
-
-	err = s.DataBase.Select(&resultTable, "SELECT id FROM student WHERE first_name = ? AND last_name = ? AND date_of_birth = ?", firstN, lastN, birth)
+	res, err := getIdStudentFromDB(s.DataBase, firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -94,13 +97,13 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	if len(resultTable) == 0 {
+	if len(res) == 0 {
 		context.Status(404)
 		context.Writer.WriteString("No students with this data")
 		return
 	}
 
-	jsonInByte, err := json.Marshal(resultTable)
+	jsonInByte, err := json.Marshal(res)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
@@ -109,9 +112,18 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 	context.Writer.Write(jsonInByte)
 }
 
-func (s *Server) DelStudentHandler(context *gin.Context) {
+func getIdStudentFromDB(db *sqlx.DB, firstN, lastN, birth string) ([]ID, error) {
 
-	var err error
+	var resultTable []ID
+
+	err := db.Select(&resultTable, "SELECT id FROM student WHERE first_name = ? AND last_name = ? AND date_of_birth = ?", firstN, lastN, birth)
+	if err != nil {
+		return nil, err
+	}
+	return resultTable, nil
+}
+
+func (s *Server) DelStudentHandler(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
 	if id == "" || !ok {
@@ -119,27 +131,38 @@ func (s *Server) DelStudentHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := s.DataBase.Exec("DELETE FROM student WHERE id = ?", id)
+	isDeleted, err := deleteStudentFromDB(s.DataBase, id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
 		return
 	}
 
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
-		return
-	}
-
-	if countOfDeletedRows == 0 {
-		context.Status(500)
-		context.Writer.WriteString("Wrong ID. Try again")
+	if isDeleted == false {
+		context.Writer.WriteString("Something went wrong")
 		return
 	}
 
 	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func deleteStudentFromDB(db *sqlx.DB, id string) (bool, error) {
+
+	res, err := db.Exec("DELETE FROM student WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if countOfDeletedRows == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
@@ -307,14 +330,54 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
-	countOfDeletedRows, err := res.RowsAffected()
+	countOfModifiedRows, err := res.RowsAffected()
 	if err != nil {
 		context.Writer.WriteString("Something went wrong")
 		context.Status(500)
 		return
 	}
 
-	if countOfDeletedRows == 0 {
+	if countOfModifiedRows == 0 {
+		context.Writer.WriteString("There is no student with this ID")
+		context.Status(500)
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
+
+	var err error
+
+	studId, ok := context.GetQuery("student_id")
+	if studId == "" || !ok {
+		context.Writer.WriteString("Missing student ID")
+		return
+	}
+
+	roomNum, ok := context.GetQuery("room_id")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("Missing student ID")
+		return
+	}
+
+	res, err := s.DataBase.Exec("UPDATE student SET room = NULL WHERE id = ? AND room = ?", studId, roomNum)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something's not right. Try again")
+		fmt.Println("!!!!!!!", err)
+		return
+	}
+
+	countOfModifiedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Writer.WriteString("Something went wrong")
+		context.Status(500)
+		return
+	}
+
+	if countOfModifiedRows == 0 {
 		context.Writer.WriteString("There is no student with this ID")
 		context.Status(500)
 		return
@@ -464,4 +527,20 @@ func (s *Server) DeleteGroupHandler(context *gin.Context) {
 	}
 
 	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) AddToGroupHandler(context *gin.Context) {
+
+}
+
+func (s *Server) RemoveFromGroupHandler(context *gin.Context) {
+
+}
+
+func (s *Server) GetGroupStudentsHandler(context *gin.Context) {
+
+}
+
+func (s *Server) GetGroupHandler(context *gin.Context) {
+
 }
