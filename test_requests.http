@@ -5,10 +5,10 @@ POST http://localhost:8080/create_student?first_name=Grisha&last_name=Yuriev&dat
 GET http://localhost:8080/get_id_student?first_name=Oleg&last_name=Sergeyev&date_of_birth=31.01.1999
 
 ### Запрос на удаление студента по ID
-DELETE http://localhost:8080/delete_student?id=3
+DELETE http://localhost:8080/delete_student?id=6
 
 ### Запрос на поиск студента по ID
-GET http://localhost:8080/get_students_info_by_id?id=3
+GET http://localhost:8080/get_students_info_by_id?id=7
 
 ### Запрос на поиск студента по имени
 GET http://localhost:8080/get_students_info_by_name?first_name=Oleg&last_name=Sergeyev
@@ -37,14 +37,14 @@ POST http://localhost:8080/create_group?group_id=MTiT-3&course=3&number_of_place
 ### Запрос на удаление группы
 DELETE http://localhost:8080/delete_group?group_id=MTT-7
 
-### Запрос на добавление студента в группу  ?????
+### Запрос на добавление студента в группу  // Not done
 POST http://localhost:8080/add_to_group
 
-### Запрос на удаление студента из группы   ?????
+### Запрос на удаление студента из группы   // Not done
 POST http://localhost:8080/remove_from_group
 
-### Запрос на получени данных студентов группы   ?????
+### Запрос на получени данных студентов группы   // Not done
 POST http://localhost:8080/get_students_group
 
-### Запрос на получение данных о группе по ID   ?????
+### Запрос на получение данных о группе по ID   // Not done
 GET http://localhost:8080/get_group_info
