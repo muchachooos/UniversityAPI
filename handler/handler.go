@@ -17,7 +17,7 @@ type Student struct {
 	LastName    string  `db:"last_name" json:"lastName"`
 	GroupID     *string `db:"group_id" json:"GroupID"`
 	Room        *string `db:"room" json:"room"`
-	DateOfBirth *string `db:"date_of_birth" json:"dateOfBirth"`
+	DateOfBirth *string `db:"date_of_birth" json:"date_of_birth"`
 }
 
 type Room struct {
@@ -214,7 +214,11 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		context.Writer.WriteString("json creating error")
 		return
 	}
-	//fmt.Println(string(jsonInByte))
+
+	// Comment
+	//fmt.Println("Слайс из студентов: ", resultTable)
+	//fmt.Println("Слайс из студентов преаратился в JSON: ", string(jsonInByte))
+	// Comment
 
 	context.Writer.Write(jsonInByte)
 }
@@ -240,6 +244,79 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
 		fmt.Println("!!!!!!!", err)
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) DelRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	res, err := s.DataBase.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	if countOfDeletedRows == 0 {
+		context.Status(500)
+		context.Writer.WriteString("Wrong ID. Try again")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) AddToRoomHandler(context *gin.Context) {
+
+	var err error
+
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	studId, ok := context.GetQuery("student_id")
+	if studId == "" || !ok {
+		context.Writer.WriteString("No student ID")
+		return
+	}
+
+	res, err := s.DataBase.Exec("UPDATE student SET room = ? WHERE id = ?", roomNum, studId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something's not right. Try again")
+		fmt.Println("!!!!!!!", err)
+		return
+	}
+
+	countOfDeletedRows, err := res.RowsAffected()
+	if err != nil {
+		context.Writer.WriteString("Something went wrong")
+		context.Status(500)
+		return
+	}
+
+	if countOfDeletedRows == 0 {
+		context.Writer.WriteString("There is no student with this ID")
+		context.Status(500)
 		return
 	}
 
@@ -317,56 +394,35 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 
 }
 
-func (s *Server) DelRoomHandler(context *gin.Context) {
+func (s *Server) CreateGroupHandler(context *gin.Context) {
 
 	var err error
 
-	roomNum, ok := context.GetQuery("room_number")
-	if roomNum == "" || !ok {
-		context.Writer.WriteString("No room number")
+	id, ok := context.GetQuery("group_id")
+	if id == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
 		return
 	}
 
-	res, err := s.DataBase.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
+	course, ok := context.GetQuery("course")
+	if course == "" || !ok {
+		context.Writer.WriteString("Missing course")
 		return
 	}
 
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
+	places, ok := context.GetQuery("number_of_places")
+	if places == "" || !ok {
+		context.Writer.WriteString("Missing number of places")
 		return
 	}
 
-	if countOfDeletedRows == 0 {
-		context.Status(500)
-		context.Writer.WriteString("Wrong ID. Try again")
+	spec, ok := context.GetQuery("specialization")
+	if spec == "" || !ok {
+		context.Writer.WriteString("Missing specialization")
 		return
 	}
 
-	context.Writer.WriteString("Welcome to the club Body")
-}
-
-func (s *Server) AddToRoomHandler(context *gin.Context) {
-
-	var err error
-
-	roomNum, ok := context.GetQuery("room_number")
-	if roomNum == "" || !ok {
-		context.Writer.WriteString("No room number")
-		return
-	}
-
-	studId, ok := context.GetQuery("student_id")
-	if studId == "" || !ok {
-		context.Writer.WriteString("No student ID")
-		return
-	}
-
-	res, err := s.DataBase.Exec("UPDATE student SET room = ? WHERE id = ?", roomNum, studId)
+	_, err = s.DataBase.Exec("INSERT INTO `group`(id, course, number_of_places, specialization) VALUES (?,?,?,?)", id, course, places, spec)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -374,16 +430,36 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
+	context.Writer.WriteString("Welcome to the club Body")
+}
+
+func (s *Server) DeleteGroupHandler(context *gin.Context) {
+
+	var err error
+
+	id, ok := context.GetQuery("group_id")
+	if id == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
+		return
+	}
+
+	res, err := s.DataBase.Exec("DELETE FROM `group` WHERE id = ?", id)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
 	countOfDeletedRows, err := res.RowsAffected()
 	if err != nil {
-		context.Writer.WriteString("Something went wrong")
 		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
 		return
 	}
 
 	if countOfDeletedRows == 0 {
-		context.Writer.WriteString("There is no student with this ID")
 		context.Status(500)
+		context.Writer.WriteString("Wrong group ID. Try again")
 		return
 	}
 
