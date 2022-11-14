@@ -167,17 +167,13 @@ func deleteStudentFromDB(db *sqlx.DB, id string) (bool, error) {
 
 func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 
-	var err error
-
 	id, ok := context.GetQuery("id")
 	if id == "" || !ok {
 		context.Writer.WriteString("No ID")
 		return
 	}
 
-	var resultTable []Student
-
-	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
+	res, err := getStudentFromDB(s.DataBase, id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -185,19 +181,31 @@ func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 		return
 	}
 
-	if len(resultTable) == 0 {
+	if len(res) == 0 {
 		context.Status(404)
 		context.Writer.WriteString("No students with this ID")
 		return
 	}
 
-	jsonInByte, err := json.Marshal(resultTable)
+	jsonInByte, err := json.Marshal(res)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
 	}
 
 	context.Writer.Write(jsonInByte)
+}
+
+func getStudentFromDB(db *sqlx.DB, id string) ([]Student, error) {
+
+	var resultTable []Student
+
+	err := db.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
+	if err != nil {
+		return nil, err
+	}
+
+	return resultTable, nil
 }
 
 func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
@@ -454,7 +462,6 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 	}
 
 	context.Writer.Write(jsonInByte)
-
 }
 
 func (s *Server) CreateGroupHandler(context *gin.Context) {
