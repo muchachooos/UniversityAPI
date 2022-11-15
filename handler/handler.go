@@ -4,12 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx"
 )
-
-type Server struct {
-	DataBase *sqlx.DB
-}
 
 type Student struct {
 	ID          int     `db:"id" json:"id"`
@@ -60,16 +55,6 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func createStudentInDB(db *sqlx.DB, firstN, lastN, birth string) error {
-
-	_, err := db.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 
 	firstN, ok := context.GetQuery("first_name")
@@ -113,17 +98,6 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 	context.Writer.Write(jsonInByte)
 }
 
-func getIdStudentFromDB(db *sqlx.DB, firstN, lastN, birth string) ([]ID, error) {
-
-	var resultTable []ID
-
-	err := db.Select(&resultTable, "SELECT id FROM student WHERE first_name = ? AND last_name = ? AND date_of_birth = ?", firstN, lastN, birth)
-	if err != nil {
-		return nil, err
-	}
-	return resultTable, nil
-}
-
 func (s *Server) DelStudentHandler(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
@@ -145,25 +119,6 @@ func (s *Server) DelStudentHandler(context *gin.Context) {
 	}
 
 	context.Writer.WriteString("Welcome to the club Body")
-}
-
-func deleteStudentFromDB(db *sqlx.DB, id string) (bool, error) {
-
-	res, err := db.Exec("DELETE FROM student WHERE id = ?", id)
-	if err != nil {
-		return false, err
-	}
-
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	if countOfDeletedRows == 0 {
-		return false, nil
-	}
-
-	return true, nil
 }
 
 func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
@@ -195,18 +150,6 @@ func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 	}
 
 	context.Writer.Write(jsonInByte)
-}
-
-func getStudentFromDB(db *sqlx.DB, id string) ([]Student, error) {
-
-	var resultTable []Student
-
-	err := db.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
-	if err != nil {
-		return nil, err
-	}
-
-	return resultTable, nil
 }
 
 func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
@@ -246,18 +189,6 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 	context.Writer.Write(jsonInByte)
 }
 
-func getStudentByNameFromDB(db *sqlx.DB, firstN, lastN string) ([]Student, error) {
-
-	var resultTable []Student
-
-	err := db.Select(&resultTable, "SELECT * FROM student WHERE first_name = ? AND last_name = ?", firstN, lastN)
-	if err != nil {
-		return nil, err
-	}
-
-	return resultTable, nil
-}
-
 func (s *Server) CreateRoomHandler(context *gin.Context) {
 
 	roomNum, ok := context.GetQuery("room_number")
@@ -283,16 +214,6 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func createRoomInDB(db *sqlx.DB, roomNum, beds string) error {
-
-	_, err := db.Exec("INSERT INTO rooms(room_number, number_of_beds) VALUES (?,?)", roomNum, beds)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *Server) DelRoomHandler(context *gin.Context) {
 
 	roomNum, ok := context.GetQuery("room_number")
@@ -316,34 +237,7 @@ func (s *Server) DelRoomHandler(context *gin.Context) {
 	context.Writer.WriteString("Welcome to the club Body")
 }
 
-func deleteRoomFromDB(db *sqlx.DB, roomNum string) (bool, error) {
-
-	res, err := db.Exec("DELETE FROM rooms WHERE room_number = ?", roomNum)
-	if err != nil {
-		return false, err
-	}
-
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	if countOfDeletedRows == 0 {
-		return false, nil
-	}
-
-	return true, nil
-}
-
 func (s *Server) AddToRoomHandler(context *gin.Context) {
-
-	var err error
-
-	roomNum, ok := context.GetQuery("room_number")
-	if roomNum == "" || !ok {
-		context.Writer.WriteString("No room number")
-		return
-	}
 
 	studId, ok := context.GetQuery("student_id")
 	if studId == "" || !ok {
@@ -351,7 +245,13 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := s.DataBase.Exec("UPDATE student SET room = ? WHERE id = ?", roomNum, studId)
+	roomNum, ok := context.GetQuery("room_number")
+	if roomNum == "" || !ok {
+		context.Writer.WriteString("No room number")
+		return
+	}
+
+	res, err := addToRoomInDB(s.DataBase, roomNum, studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -359,16 +259,8 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
-	countOfModifiedRows, err := res.RowsAffected()
-	if err != nil {
+	if res == false {
 		context.Writer.WriteString("Something went wrong")
-		context.Status(500)
-		return
-	}
-
-	if countOfModifiedRows == 0 {
-		context.Writer.WriteString("There is no student with this ID")
-		context.Status(500)
 		return
 	}
 
@@ -377,21 +269,19 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 
 func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
 
-	var err error
-
 	studId, ok := context.GetQuery("student_id")
 	if studId == "" || !ok {
 		context.Writer.WriteString("Missing student ID")
 		return
 	}
 
-	roomNum, ok := context.GetQuery("room_id")
+	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
 		context.Writer.WriteString("Missing student ID")
 		return
 	}
 
-	res, err := s.DataBase.Exec("UPDATE student SET room = NULL WHERE id = ? AND room = ?", studId, roomNum)
+	res, err := removeFromRoomInDB(s.DataBase, studId, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -399,16 +289,8 @@ func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
 		return
 	}
 
-	countOfModifiedRows, err := res.RowsAffected()
-	if err != nil {
+	if res == false {
 		context.Writer.WriteString("Something went wrong")
-		context.Status(500)
-		return
-	}
-
-	if countOfModifiedRows == 0 {
-		context.Writer.WriteString("There is no student with this ID")
-		context.Status(500)
 		return
 	}
 
@@ -449,6 +331,10 @@ func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 
 	context.Writer.Write(jsonInByte)
 }
+
+//func getRoomStudentFromDB(db *sqlx.DB, roomNum string) ([]Student, error) {
+//
+//}
 
 func (s *Server) GetRoomHandler(context *gin.Context) {
 
