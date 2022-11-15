@@ -46,5 +46,5 @@ POST http://localhost:8080/remove_from_group?group_id=MTaC-4&student_id=1
 ### Запрос на получени данных студентов группы  
 GET http://localhost:8080/get_students_group?group_id=MTiT-3
 
-### Запрос на получение данных о группе по ID   // Not done
-GET http://localhost:8080/get_group_info
+### Запрос на получение данных о группе по ID
+GET http://localhost:8080/get_group_info?group_id=MTiT-3
