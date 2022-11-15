@@ -75,7 +75,7 @@ func GetGroupStudentFromDB(db *sqlx.DB, groupId string) ([]model.Student, error)
 
 	var resultTable []model.Student
 
-	err := db.Select(&resultTable, "SELECT * FROM student WHERE room = ?", groupId)
+	err := db.Select(&resultTable, "SELECT * FROM student WHERE group_id = ?", groupId)
 	if err != nil {
 		return nil, err
 	}
