@@ -5,10 +5,10 @@ POST http://localhost:8080/create_student?first_name=Grisha&last_name=Yuriev&dat
 GET http://localhost:8080/get_id_student?first_name=Oleg&last_name=Sergeyev&date_of_birth=31.01.1999
 
 ### Запрос на удаление студента по ID
-DELETE http://localhost:8080/delete_student?id=6
+DELETE http://localhost:8080/delete_student?id=8
 
 ### Запрос на поиск студента по ID
-GET http://localhost:8080/get_students_info_by_id?id=7
+GET http://localhost:8080/get_students_info_by_id?id=2
 
 ### Запрос на поиск студента по имени
 GET http://localhost:8080/get_students_info_by_name?first_name=Oleg&last_name=Sergeyev
@@ -20,13 +20,13 @@ POST http://localhost:8080/create_room?room_number=WC&number_of_beds=0
 DELETE http://localhost:8080/delete_room?room_number=WC
 
 ### Запрос на заселение студента в комнату
-POST http://localhost:8080/add_to_room?room_number=11A&student_id=1
+POST http://localhost:8080/add_to_room?student_id=2&room_number=WC
 
 ### Запрос на выселение студента из комнаты
-POST http://localhost:8080/remove_from_room?student_id=2&room_id=11A
+POST http://localhost:8080/remove_from_room?student_id=1&room_number=wc
 
 ### Запрос на получение данных жильцов комнаты по номеру
-GET http://localhost:8080/get_students_room?room_number=11A
+GET http://localhost:8080/get_students_room?room_number=wc
 
 ### Запрос на получение данных о комнате по номеру
 GET http://localhost:8080/get_room_info?room_number=11A
