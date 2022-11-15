@@ -41,7 +41,7 @@ func main() {
 	router.POST("/add_to_group", server.AddToGroupHandler)
 	router.POST("/remove_from_group", server.RemoveFromGroupHandler)
 	router.GET("/get_students_group", server.GetGroupStudentsHandler)
-	router.GET("/get_group_info", server.GetGroupHandler) // Not done
+	router.GET("/get_group_info", server.GetGroupHandler)
 
 	router.Run("localhost:8080")
 }
