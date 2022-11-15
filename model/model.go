@@ -17,3 +17,10 @@ type Room struct {
 type ID struct {
 	ID int `db:"id" json:"id"`
 }
+
+type Group struct {
+	ID             string `db:"id" json:"id"`
+	Course         int    `db:"course" json:"course"`
+	NumberOfPlaces int    `db:"number_of_places" json:"number_of_places"`
+	Specialization string `db:"specialization" json:"specialization"`
+}
