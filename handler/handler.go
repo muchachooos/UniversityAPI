@@ -493,4 +493,31 @@ func (s *Server) GetGroupStudentsHandler(context *gin.Context) {
 
 func (s *Server) GetGroupHandler(context *gin.Context) {
 
+	groupId, ok := context.GetQuery("group_id")
+	if groupId == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
+		return
+	}
+
+	res, err := storage.GetGroupFromDB(s.DataBase, groupId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		fmt.Println("!!!!!!!!!!!! - ", err)
+		return
+	}
+
+	if len(res) == 0 {
+		context.Status(404)
+		context.Writer.WriteString("No data with this groups")
+		return
+	}
+
+	jsonInByte, err := json.Marshal(res)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
+	}
+
+	context.Writer.Write(jsonInByte)
 }
