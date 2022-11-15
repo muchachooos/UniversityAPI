@@ -33,10 +33,8 @@ CREATE TABLE record_book
         ON DELETE CASCADE
 );
 
-ALTER TABLE `group`
-    MODIFY COLUMN specialization VARCHAR (100) CHECK (specialization != '') NOT NULL;
-
-
+# ALTER TABLE `group`
+#     MODIFY COLUMN specialization VARCHAR (100) CHECK (specialization != '') NOT NULL;
 
 # DROP TABLE record_book;
 # DROP TABLE student;
