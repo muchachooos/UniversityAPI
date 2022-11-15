@@ -20,30 +20,30 @@ POST http://localhost:8080/create_room?room_number=WC&number_of_beds=0
 DELETE http://localhost:8080/delete_room?room_number=WC
 
 ### Запрос на заселение студента в комнату
-POST http://localhost:8080/add_to_room?student_id=2&room_number=WC
+POST http://localhost:8080/add_to_room?student_id=2&room_number=11a
 
 ### Запрос на выселение студента из комнаты
 POST http://localhost:8080/remove_from_room?student_id=1&room_number=wc
 
 ### Запрос на получение данных жильцов комнаты по номеру
-GET http://localhost:8080/get_students_room?room_number=wc
+GET http://localhost:8080/get_students_room?room_number=11a
 
 ### Запрос на получение данных о комнате по номеру
 GET http://localhost:8080/get_room_info?room_number=11A
 
 ### Запрос на создание группы
-POST http://localhost:8080/create_group?group_id=MTiT-3&course=3&number_of_places=27&specialization=Information+Technology
+POST http://localhost:8080/create_group?group_id=MTaC-4&course=3&number_of_places=25&specialization=Information+Technology+And+Сommunications
 
 ### Запрос на удаление группы
 DELETE http://localhost:8080/delete_group?group_id=MTT-7
 
-### Запрос на добавление студента в группу  // Not done
-POST http://localhost:8080/add_to_group
+### Запрос на добавление студента в группу
+POST http://localhost:8080/add_to_group?group_id=MTaC-4&student_id=2
 
-### Запрос на удаление студента из группы   // Not done
-POST http://localhost:8080/remove_from_group
+### Запрос на удаление студента из группы
+POST http://localhost:8080/remove_from_group?group_id=MTaC-4&student_id=2
 
-### Запрос на получени данных студентов группы   // Not done
+### Запрос на получени данных студентов группы  
 POST http://localhost:8080/get_students_group
 
 ### Запрос на получение данных о группе по ID   // Not done
