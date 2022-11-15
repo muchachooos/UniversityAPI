@@ -1,28 +1,11 @@
 package handler
 
 import (
+	"UniversityAPI/storage"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
-
-type Student struct {
-	ID          int     `db:"id" json:"id"`
-	FirstName   string  `db:"first_name" json:"firstName"`
-	LastName    string  `db:"last_name" json:"lastName"`
-	GroupID     *string `db:"group_id" json:"GroupID"`
-	Room        *string `db:"room" json:"room"`
-	DateOfBirth *string `db:"date_of_birth" json:"date_of_birth"`
-}
-
-type Room struct {
-	RoomNumber string `db:"room_number" json:"room_umber"`
-	NumOfDBeds int    `db:"number_of_beds" json:"number_of_beds"`
-}
-
-type ID struct {
-	ID int `db:"id" json:"id"`
-}
 
 func (s *Server) CreateStudentHandler(context *gin.Context) {
 
@@ -44,7 +27,7 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 		return
 	}
 
-	err := createStudentInDB(s.DataBase, firstN, lastN, birth)
+	err := storage.CreateStudentInDB(s.DataBase, firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -75,7 +58,7 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := getIdStudentFromDB(s.DataBase, firstN, lastN, birth)
+	res, err := storage.GetIdStudentFromDB(s.DataBase, firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -106,7 +89,7 @@ func (s *Server) DelStudentHandler(context *gin.Context) {
 		return
 	}
 
-	isDeleted, err := deleteStudentFromDB(s.DataBase, id)
+	isDeleted, err := storage.DeleteStudentFromDB(s.DataBase, id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -129,7 +112,7 @@ func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := getStudentFromDB(s.DataBase, id)
+	res, err := storage.GetStudentFromDB(s.DataBase, id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -166,7 +149,7 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := getStudentByNameFromDB(s.DataBase, firstN, lastN)
+	res, err := storage.GetStudentByNameFromDB(s.DataBase, firstN, lastN)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -203,7 +186,7 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 		return
 	}
 
-	err := createRoomInDB(s.DataBase, roomNum, beds)
+	err := storage.CreateRoomInDB(s.DataBase, roomNum, beds)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -222,7 +205,7 @@ func (s *Server) DelRoomHandler(context *gin.Context) {
 		return
 	}
 
-	isDeleted, err := deleteRoomFromDB(s.DataBase, roomNum)
+	isDeleted, err := storage.DeleteRoomFromDB(s.DataBase, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -251,7 +234,7 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := addToRoomInDB(s.DataBase, roomNum, studId)
+	res, err := storage.AddToRoomInDB(s.DataBase, roomNum, studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -281,7 +264,7 @@ func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := removeFromRoomInDB(s.DataBase, studId, roomNum)
+	res, err := storage.RemoveFromRoomInDB(s.DataBase, studId, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -299,17 +282,13 @@ func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
 
 func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 
-	var err error
-
 	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
 		context.Writer.WriteString("Missing room number")
 		return
 	}
 
-	var resultTable []Student
-
-	err = s.DataBase.Select(&resultTable, "SELECT * FROM student WHERE room = ?", roomNum)
+	res, err := storage.GetRoomStudentFromDB(s.DataBase, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -317,13 +296,13 @@ func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	if len(resultTable) == 0 {
+	if len(res) == 0 {
 		context.Status(404)
 		context.Writer.WriteString("No data with this rooms")
 		return
 	}
 
-	jsonInByte, err := json.Marshal(resultTable)
+	jsonInByte, err := json.Marshal(res)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
@@ -332,13 +311,7 @@ func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 	context.Writer.Write(jsonInByte)
 }
 
-//func getRoomStudentFromDB(db *sqlx.DB, roomNum string) ([]Student, error) {
-//
-//}
-
 func (s *Server) GetRoomHandler(context *gin.Context) {
-
-	var err error
 
 	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
@@ -346,9 +319,7 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 		return
 	}
 
-	var resultTable []Room
-
-	err = s.DataBase.Select(&resultTable, "SELECT * FROM rooms WHERE room_number = ?", roomNum)
+	res, err := storage.GetRoomFromDB(s.DataBase, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -356,13 +327,13 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 		return
 	}
 
-	if len(resultTable) == 0 {
+	if len(res) == 0 {
 		context.Status(404)
 		context.Writer.WriteString("No data with this rooms")
 		return
 	}
 
-	jsonInByte, err := json.Marshal(resultTable)
+	jsonInByte, err := json.Marshal(res)
 	if err != nil {
 		context.Writer.WriteString("json creating error")
 		return
@@ -372,8 +343,6 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 }
 
 func (s *Server) CreateGroupHandler(context *gin.Context) {
-
-	var err error
 
 	id, ok := context.GetQuery("group_id")
 	if id == "" || !ok {
@@ -399,7 +368,7 @@ func (s *Server) CreateGroupHandler(context *gin.Context) {
 		return
 	}
 
-	_, err = s.DataBase.Exec("INSERT INTO `group`(id, course, number_of_places, specialization) VALUES (?,?,?,?)", id, course, places, spec)
+	err := storage.CreateGroupInDB(s.DataBase, id, course, places, spec)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -412,31 +381,21 @@ func (s *Server) CreateGroupHandler(context *gin.Context) {
 
 func (s *Server) DeleteGroupHandler(context *gin.Context) {
 
-	var err error
-
 	id, ok := context.GetQuery("group_id")
 	if id == "" || !ok {
 		context.Writer.WriteString("Missing group ID")
 		return
 	}
 
-	res, err := s.DataBase.Exec("DELETE FROM `group` WHERE id = ?", id)
+	res, err := storage.DeleteGroupFromDB(s.DataBase, id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
 		return
 	}
 
-	countOfDeletedRows, err := res.RowsAffected()
-	if err != nil {
-		context.Status(500)
-		context.Writer.WriteString("Something went wrong. Try again")
-		return
-	}
-
-	if countOfDeletedRows == 0 {
-		context.Status(500)
-		context.Writer.WriteString("Wrong group ID. Try again")
+	if res == false {
+		context.Writer.WriteString("Something's not right")
 		return
 	}
 
@@ -445,14 +404,91 @@ func (s *Server) DeleteGroupHandler(context *gin.Context) {
 
 func (s *Server) AddToGroupHandler(context *gin.Context) {
 
+	groupId, ok := context.GetQuery("group_id")
+	if groupId == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
+		return
+	}
+
+	studId, ok := context.GetQuery("student_id")
+	if studId == "" || !ok {
+		context.Writer.WriteString("Missing student ID")
+		return
+	}
+
+	res, err := storage.AddToGroupInDB(s.DataBase, groupId, studId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	if res == false {
+		context.Writer.WriteString("Something's not right")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
 }
 
 func (s *Server) RemoveFromGroupHandler(context *gin.Context) {
 
+	groupId, ok := context.GetQuery("group_id")
+	if groupId == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
+		return
+	}
+
+	studId, ok := context.GetQuery("student_id")
+	if studId == "" || !ok {
+		context.Writer.WriteString("Missing student ID")
+		return
+	}
+
+	res, err := storage.RemoveFromGroupInnDB(s.DataBase, groupId, studId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		return
+	}
+
+	if res == false {
+		context.Writer.WriteString("Something's not right")
+		return
+	}
+
+	context.Writer.WriteString("Welcome to the club Body")
 }
 
 func (s *Server) GetGroupStudentsHandler(context *gin.Context) {
 
+	groupId, ok := context.GetQuery("group_id")
+	if groupId == "" || !ok {
+		context.Writer.WriteString("Missing group ID")
+		return
+	}
+
+	res, err := storage.GetGroupStudentFromDB(s.DataBase, groupId)
+	if err != nil {
+		context.Status(500)
+		context.Writer.WriteString("Something went wrong. Try again")
+		fmt.Println("!!!!!!!!!!!! - ", err)
+		return
+	}
+
+	if len(res) == 0 {
+		context.Status(404)
+		context.Writer.WriteString("No data with this groups")
+		return
+	}
+
+	jsonInByte, err := json.Marshal(res)
+	if err != nil {
+		context.Writer.WriteString("json creating error")
+		return
+	}
+
+	context.Writer.Write(jsonInByte)
 }
 
 func (s *Server) GetGroupHandler(context *gin.Context) {
