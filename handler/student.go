@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"UniversityAPI/storage"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -27,7 +26,7 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 		return
 	}
 
-	err := storage.CreateStudentInDB(s.DataBase, firstN, lastN, birth)
+	err := s.Storage.CreateStudentInDB(firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -58,7 +57,7 @@ func (s *Server) GetIdStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetIdStudentFromDB(s.DataBase, firstN, lastN, birth)
+	res, err := s.Storage.GetIdStudentFromDB(firstN, lastN, birth)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -89,7 +88,7 @@ func (s *Server) DelStudentHandler(context *gin.Context) {
 		return
 	}
 
-	isDeleted, err := storage.DeleteStudentFromDB(s.DataBase, id)
+	isDeleted, err := s.Storage.DeleteStudentFromDB(id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -112,7 +111,7 @@ func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetStudentFromDB(s.DataBase, id)
+	res, err := s.Storage.GetStudentFromDB(id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -149,7 +148,7 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetStudentByNameFromDB(s.DataBase, firstN, lastN)
+	res, err := s.Storage.GetStudentByNameFromDB(firstN, lastN)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
