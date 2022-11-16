@@ -11,13 +11,13 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 
 	roomNum, ok := context.GetQuery("room_number")
 	if roomNum == "" || !ok {
-		context.Writer.WriteString("No room number")
+		context.Writer.WriteString("Missing room number")
 		return
 	}
 
 	beds, ok := context.GetQuery("number_of_beds")
 	if beds == "" || !ok {
-		context.Writer.WriteString("No number of beds")
+		context.Writer.WriteString("Missing number of beds")
 		return
 	}
 
