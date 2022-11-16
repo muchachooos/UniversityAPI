@@ -27,9 +27,9 @@ func GetIDRecordBookFromDB(db *sqlx.DB, studId string) ([]model.ID, error) {
 	return resultTable, nil
 }
 
-func DeleteRecordBookFromDB(db *sqlx.DB, bookId string) (bool, error) {
+func (u *UniversityStorage) DeleteRecordBookFromDB(bookId string) (bool, error) {
 
-	res, err := db.Exec("DELETE FROM record_book WHERE id = ?", bookId)
+	res, err := u.DataBase.Exec("DELETE FROM record_book WHERE id = ?", bookId)
 	if err != nil {
 		return false, err
 	}
