@@ -1,7 +1,7 @@
 package handler
 
-import "github.com/jmoiron/sqlx"
+import "UniversityAPI/storage"
 
 type Server struct {
-	DataBase *sqlx.DB
+	Storage *storage.UniversityStorage
 }
