@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"UniversityAPI/storage"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,7 @@ func (s *Server) CreateRoomHandler(context *gin.Context) {
 		return
 	}
 
-	err := storage.CreateRoomInDB(s.DataBase, roomNum, beds)
+	err := s.Storage.CreateRoomInDB(roomNum, beds)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -40,7 +39,7 @@ func (s *Server) DelRoomHandler(context *gin.Context) {
 		return
 	}
 
-	isDeleted, err := storage.DeleteRoomFromDB(s.DataBase, roomNum)
+	isDeleted, err := s.Storage.DeleteRoomFromDB(roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -69,7 +68,7 @@ func (s *Server) AddToRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.AddToRoomInDB(s.DataBase, roomNum, studId)
+	res, err := s.Storage.AddToRoomInDB(roomNum, studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -99,7 +98,7 @@ func (s *Server) RemoveFromRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.RemoveFromRoomInDB(s.DataBase, studId, roomNum)
+	res, err := s.Storage.RemoveFromRoomInDB(studId, roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -123,7 +122,7 @@ func (s *Server) GetRoomStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetRoomStudentFromDB(s.DataBase, roomNum)
+	res, err := s.Storage.GetRoomStudentFromDB(roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -154,7 +153,7 @@ func (s *Server) GetRoomHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetRoomFromDB(s.DataBase, roomNum)
+	res, err := s.Storage.GetRoomFromDB(roomNum)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
