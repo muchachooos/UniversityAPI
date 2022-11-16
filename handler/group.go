@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"UniversityAPI/storage"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -33,7 +32,7 @@ func (s *Server) CreateGroupHandler(context *gin.Context) {
 		return
 	}
 
-	err := storage.CreateGroupInDB(s.DataBase, id, course, places, spec)
+	err := s.Storage.CreateGroupInDB(id, course, places, spec)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -52,7 +51,7 @@ func (s *Server) DeleteGroupHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.DeleteGroupFromDB(s.DataBase, id)
+	res, err := s.Storage.DeleteGroupFromDB(id)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -81,7 +80,7 @@ func (s *Server) AddToGroupHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.AddToGroupInDB(s.DataBase, groupId, studId)
+	res, err := s.Storage.AddToGroupInDB(groupId, studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -110,7 +109,7 @@ func (s *Server) RemoveFromGroupHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.RemoveFromGroupInnDB(s.DataBase, groupId, studId)
+	res, err := s.Storage.RemoveFromGroupInnDB(groupId, studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -133,7 +132,7 @@ func (s *Server) GetGroupStudentsHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetGroupStudentFromDB(s.DataBase, groupId)
+	res, err := s.Storage.GetGroupStudentFromDB(groupId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -164,7 +163,7 @@ func (s *Server) GetGroupHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetGroupFromDB(s.DataBase, groupId)
+	res, err := s.Storage.GetGroupFromDB(groupId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
