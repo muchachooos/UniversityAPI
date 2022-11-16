@@ -43,5 +43,11 @@ func main() {
 	router.GET("/get_students_group", server.GetGroupStudentsHandler)
 	router.GET("/get_group_info", server.GetGroupHandler)
 
+	//Record_book
+	router.POST("/create_record_book", server.CreateRecordBookHandler)
+	router.GET("/get_id_record_book", server.GetIdRecordBookHandler)
+	router.DELETE("/delete_record_book", server.DelRecordBookHandler)
+	router.GET("/get_record_book", server.GetRecordBookHandler)
+
 	router.Run("localhost:8080")
 }
