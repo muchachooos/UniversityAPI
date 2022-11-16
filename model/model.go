@@ -1,5 +1,9 @@
 package model
 
+type ID struct {
+	ID int `db:"id" json:"id"`
+}
+
 type Student struct {
 	ID          int     `db:"id" json:"id"`
 	FirstName   string  `db:"first_name" json:"firstName"`
@@ -14,13 +18,14 @@ type Room struct {
 	NumOfDBeds int    `db:"number_of_beds" json:"number_of_beds"`
 }
 
-type ID struct {
-	ID int `db:"id" json:"id"`
-}
-
 type Group struct {
 	ID             string `db:"id" json:"id"`
 	Course         int    `db:"course" json:"course"`
 	NumberOfPlaces int    `db:"number_of_places" json:"number_of_places"`
 	Specialization string `db:"specialization" json:"specialization"`
+}
+
+type RecordBook struct {
+	ID        int `db:"id" json:"id"`
+	IdStudent int `db:"id_student" json:"id_student"`
 }
