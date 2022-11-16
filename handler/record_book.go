@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"UniversityAPI/storage"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +13,7 @@ func (s *Server) CreateRecordBookHandler(context *gin.Context) {
 		return
 	}
 
-	err := storage.CreateRecordBookInDB(s.DataBase, studId)
+	err := s.Storage.CreateRecordBookInDB(studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
@@ -32,7 +31,7 @@ func (s *Server) GetIdRecordBookHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetIDRecordBookFromDB(s.DataBase, studId)
+	res, err := s.Storage.GetIDRecordBookFromDB(studId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -62,7 +61,7 @@ func (s *Server) DelRecordBookHandler(context *gin.Context) {
 		return
 	}
 
-	isDeleted, err := storage.DeleteRecordBookFromDB(s.DataBase, bookId)
+	isDeleted, err := s.Storage.DeleteRecordBookFromDB(bookId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
@@ -85,7 +84,7 @@ func (s *Server) GetRecordBookHandler(context *gin.Context) {
 		return
 	}
 
-	res, err := storage.GetRecordBookFromDB(s.DataBase, bookId)
+	res, err := s.Storage.GetRecordBookFromDB(bookId)
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
