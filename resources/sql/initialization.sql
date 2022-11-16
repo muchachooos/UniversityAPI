@@ -28,7 +28,7 @@ CREATE TABLE `group`
 CREATE TABLE record_book
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
-    id_student INT NOT NULL,
+    id_student INT NOT NULL UNIQUE,
     FOREIGN KEY (id_student) REFERENCES student (id)
         ON DELETE CASCADE
 );
