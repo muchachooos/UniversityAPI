@@ -2,12 +2,11 @@ package storage
 
 import (
 	"UniversityAPI/model"
-	"github.com/jmoiron/sqlx"
 )
 
-func CreateStudentInDB(db *sqlx.DB, firstN, lastN, birth string) error {
+func (u *UniversityStorage) CreateStudentInDB(firstN, lastN, birth string) error {
 
-	_, err := db.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
+	_, err := u.DataBase.Exec("INSERT INTO student(first_name, last_name, date_of_birth) VALUES (?,?,?)", firstN, lastN, birth)
 	if err != nil {
 		return err
 	}
@@ -15,11 +14,11 @@ func CreateStudentInDB(db *sqlx.DB, firstN, lastN, birth string) error {
 	return nil
 }
 
-func GetIdStudentFromDB(db *sqlx.DB, firstN, lastN, birth string) ([]model.ID, error) {
+func (u *UniversityStorage) GetIdStudentFromDB(firstN, lastN, birth string) ([]model.ID, error) {
 
 	var resultTable []model.ID
 
-	err := db.Select(&resultTable, "SELECT id FROM student WHERE first_name = ? AND last_name = ? AND date_of_birth = ?", firstN, lastN, birth)
+	err := u.DataBase.Select(&resultTable, "SELECT id FROM student WHERE first_name = ? AND last_name = ? AND date_of_birth = ?", firstN, lastN, birth)
 	if err != nil {
 		return nil, err
 	}
@@ -27,9 +26,9 @@ func GetIdStudentFromDB(db *sqlx.DB, firstN, lastN, birth string) ([]model.ID, e
 	return resultTable, nil
 }
 
-func DeleteStudentFromDB(db *sqlx.DB, id string) (bool, error) {
+func (u *UniversityStorage) DeleteStudentFromDB(id string) (bool, error) {
 
-	res, err := db.Exec("DELETE FROM student WHERE id = ?", id)
+	res, err := u.DataBase.Exec("DELETE FROM student WHERE id = ?", id)
 	if err != nil {
 		return false, err
 	}
@@ -46,11 +45,11 @@ func DeleteStudentFromDB(db *sqlx.DB, id string) (bool, error) {
 	return true, nil
 }
 
-func GetStudentFromDB(db *sqlx.DB, id string) ([]model.Student, error) {
+func (u *UniversityStorage) GetStudentFromDB(id string) ([]model.Student, error) {
 
 	var resultTable []model.Student
 
-	err := db.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
+	err := u.DataBase.Select(&resultTable, "SELECT * FROM student WHERE id = ?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +57,11 @@ func GetStudentFromDB(db *sqlx.DB, id string) ([]model.Student, error) {
 	return resultTable, nil
 }
 
-func GetStudentByNameFromDB(db *sqlx.DB, firstN, lastN string) ([]model.Student, error) {
+func (u *UniversityStorage) GetStudentByNameFromDB(firstN, lastN string) ([]model.Student, error) {
 
 	var resultTable []model.Student
 
-	err := db.Select(&resultTable, "SELECT * FROM student WHERE first_name = ? AND last_name = ?", firstN, lastN)
+	err := u.DataBase.Select(&resultTable, "SELECT * FROM student WHERE first_name = ? AND last_name = ?", firstN, lastN)
 	if err != nil {
 		return nil, err
 	}
