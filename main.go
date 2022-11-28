@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	router := gin.New()
+	router := gin.Default()
 
 	dataBase, err := sqlx.Open("mysql", "root:040498usa_wot@tcp(127.0.0.1:3306)/university")
 	if err != nil {
