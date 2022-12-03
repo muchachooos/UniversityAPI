@@ -115,7 +115,6 @@ func (s *Server) GetStudentsByIdHandler(context *gin.Context) {
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
-		fmt.Println("!!!!!!!!!!!! - ", err)
 		return
 	}
 
