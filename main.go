@@ -3,17 +3,23 @@ package main
 import (
 	"UniversityAPI/handler"
 	"UniversityAPI/storage"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
 func main() {
-
 	router := gin.Default()
 
 	dataBase, err := sqlx.Open("mysql", "root:040498usa_wot@tcp(127.0.0.1:3306)/university")
 	if err != nil {
+		panic(err)
+		return
+	}
+
+	if dataBase == nil {
+		fmt.Println("dB nil")
 		panic(err)
 		return
 	}
@@ -53,5 +59,9 @@ func main() {
 	router.DELETE("/delete_record_book", server.DelRecordBookHandler)
 	router.GET("/get_record_book", server.GetRecordBookHandler)
 
-	router.Run("localhost:8080")
+	err = router.Run("localhost:8080")
+	if err != nil {
+		panic(err)
+		return
+	}
 }
