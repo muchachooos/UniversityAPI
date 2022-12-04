@@ -30,7 +30,6 @@ func (s *Server) CreateStudentHandler(context *gin.Context) {
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something's not right. Try again")
-		fmt.Println("!!!!!!!", err)
 		return
 	}
 
@@ -151,7 +150,6 @@ func (s *Server) GetStudentsByNameHandler(context *gin.Context) {
 	if err != nil {
 		context.Status(500)
 		context.Writer.WriteString("Something went wrong. Try again")
-		fmt.Println("!!!!!!!!!!!! - ", err)
 		return
 	}
 
