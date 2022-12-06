@@ -3,16 +3,38 @@ package main
 import (
 	"UniversityAPI/handler"
 	"UniversityAPI/storage"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"os"
+	"strconv"
 )
+
+type Config struct {
+	DataSourceName string `json:"dataSourceName"`
+	Port           int    `json:"port"`
+}
 
 func main() {
 	router := gin.Default()
 
-	dataBase, err := sqlx.Open("mysql", "root:040498usa_wot@tcp(127.0.0.1:3306)/university")
+	var conf Config
+
+	byte, err := os.ReadFile("./configuration.json")
+	if err != nil {
+		fmt.Println("Error Read File:", err)
+		return
+	}
+
+	err = json.Unmarshal(byte, &conf)
+	if err != nil {
+		fmt.Println("Error Unmarshal:", err)
+		return
+	}
+
+	dataBase, err := sqlx.Open("mysql", conf.DataSourceName)
 	if err != nil {
 		panic(err)
 		return
@@ -59,7 +81,9 @@ func main() {
 	router.DELETE("/delete_record_book", server.DelRecordBookHandler)
 	router.GET("/get_record_book", server.GetRecordBookHandler)
 
-	err = router.Run("localhost:8080")
+	port := ":" + strconv.Itoa(conf.Port)
+
+	err = router.Run(port)
 	if err != nil {
 		panic(err)
 		return
