@@ -2,6 +2,7 @@ package main
 
 import (
 	"UniversityAPI/handler"
+	"UniversityAPI/model"
 	"UniversityAPI/storage"
 	"encoding/json"
 	"fmt"
@@ -12,15 +13,10 @@ import (
 	"strconv"
 )
 
-type Config struct {
-	DataSourceName string `json:"dataSourceName"`
-	Port           int    `json:"port"`
-}
-
 func main() {
 	router := gin.Default()
 
-	var conf Config
+	var conf model.Config
 
 	byte, err := os.ReadFile("./configuration.json")
 	if err != nil {
