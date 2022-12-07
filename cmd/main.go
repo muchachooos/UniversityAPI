@@ -18,13 +18,13 @@ func main() {
 
 	var conf model.Config
 
-	byte, err := os.ReadFile("../configuration.json")
+	fileInBytes, err := os.ReadFile("../configuration.json")
 	if err != nil {
 		fmt.Println("Error Read File:", err)
 		return
 	}
 
-	err = json.Unmarshal(byte, &conf)
+	err = json.Unmarshal(fileInBytes, &conf)
 	if err != nil {
 		fmt.Println("Error Unmarshal:", err)
 		return
