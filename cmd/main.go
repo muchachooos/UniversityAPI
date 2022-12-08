@@ -18,7 +18,7 @@ func main() {
 
 	var conf model.Config
 
-	fileInBytes, err := os.ReadFile("../configuration.json")
+	fileInBytes, err := os.ReadFile("../../configuration.json")
 	if err != nil {
 		fmt.Println("Error Read File:", err)
 		return
