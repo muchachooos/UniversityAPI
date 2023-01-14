@@ -12,6 +12,7 @@ CREATE TABLE student
 );
 
 CREATE TABLE rooms
+
 (
     room_number    VARCHAR(10) CHECK (room_number != '') PRIMARY KEY,
     number_of_beds INT
