@@ -1,5 +1,5 @@
 ### Запрос на создаие студента ---Student
-POST http://localhost:8080/create_student?first_name=Oleg&last_name=Sergeyev&date_of_birth=31.01.1999
+POST http://34.125.93.142:3389/create_student?first_name=Olegsey&last_name=Sergayev&date_of_birth=31.01.1995
 
 ### Запрос на получение ID студента ---Student
 GET http://localhost:8080/get_id_student?first_name=Oleg&last_name=Sergeyev&date_of_birth=31.01.1999
